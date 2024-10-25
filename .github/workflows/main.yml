@@ -12,6 +12,7 @@ permissions:
 jobs:
  deploy:
     runs-on: ubuntu-latest
+    environment: dev
 
     steps:
       - name: Checkout code
@@ -27,7 +28,7 @@ jobs:
       - name: Assume Role
         run: |
           aws sts assume-role \
-            --role-arn "arn:aws:iam::994459788929:role/GithubAssumeLambdaDevRole" \
+            --role-arn "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubAssumeLambdaDevRole" \
             --role-session-name github-actions-session \
             --duration-seconds 900 > /tmp/assume-role-output.json
 
