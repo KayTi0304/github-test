@@ -48,15 +48,12 @@ jobs:
 
       - name: Upload to S3
         run: |
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "ZIP_FILE_NAME=${{ github.event.inputs.lambda_function }}-${TIMESTAMP}" >> $GITHUB_ENV
-          echo "Uploading ${{ env.ZIP_FILE_NAME }}.zip to S3..."
-          aws s3 cp main.zip s3://${{ secrets.S3_BUCKET }}/${{ env.ZIP_FILE_NAME }}.zip
+          aws s3 cp main.zip s3://${{ secrets.S3_BUCKET }}/${{ github.event.inputs.lambda_function }}.zip
 
       - name: Deploy to Lambda
         run: |
           echo "Updating ${{ env.ZIP_FILE_NAME }}.zip to Lambda..."
           aws lambda update-function-code \
             --function-name ${{ github.event.inputs.lambda_function }} \
-             --s3-bucket ${{ secrets.S3_BUCKET }} --s3-key ${{ env.ZIP_FILE_NAME }}.zip
+             --s3-bucket ${{ secrets.S3_BUCKET }} --s3-key ${{ github.event.inputs.lambda_function }}.zip
 
