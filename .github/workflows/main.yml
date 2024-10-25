@@ -29,6 +29,14 @@ jobs:
           # Semantic version range syntax or exact version of Go
           go-version: '1.21.x'
 
+      - name: Build
+        run: |
+          # Navigate to the changed Lambda directory
+          go build -o bootstrap ./${{ github.event.inputs.lambda_function }}/main.go 
+
+      - name: Zip the name file
+        run: zip main.zip bootstrap
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -38,16 +46,15 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubAssumeLambdaDevRole
           role-duration-seconds: 2400
 
-      - name: Build
+      - name: Upload to S3
         run: |
-          # Navigate to the changed Lambda directory
-          go build -o bootstrap ./${{ github.event.inputs.lambda_function }}/main.go 
-
-      - name: Zip the name file
-        run: zip main.zip bootstrap
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          ZIP_FILE_NAME="${{ github.event.inputs.lambda_function }}-${TIMESTAMP}.zip"
+          aws s3 cp main.zip s3://${{ secrets.S3_BUCKET }}/${ZIP_FILE_NAME}.zip
 
       - name: Deploy to Lambda
         run: |
           aws lambda update-function-code \
             --function-name ${{ github.event.inputs.lambda_function }} \
-            --zip-file fileb://main.zip
+             --s3-bucket ${{ secrets.S3_BUCKET }} --s3-key ${ZIP_FILE_NAME}.zip
+
