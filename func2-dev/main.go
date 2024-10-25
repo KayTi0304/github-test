@@ -9,7 +9,7 @@ import (
 
 // Define a custom request structure if you need to handle JSON input
 type MyRequest2 struct {
-	Name   string `json:"name"`
+	Name2  string `json:"name"`
 	Animal string `json:"animal"`
 }
 
@@ -22,7 +22,7 @@ type MyResponse2 struct {
 func handler(ctx context.Context, request MyRequest2) (MyResponse2, error) {
 	// Business logic or processing based on request data
 	fmt.Println("in lambda 2")
-	message := fmt.Sprintf("Hello %s, you are %d years old!", request.Name, request.Animal)
+	message := fmt.Sprintf("Hello %s, you are %d years old!", request.Name2, request.Animal)
 
 	// Create a response
 	return MyResponse2{Message: message}, nil
