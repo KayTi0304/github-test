@@ -25,6 +25,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1 # Set your region
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubAssumeLambdaDevRole
+          role-duration-seconds: 2400
 
       - name: Setup Go 1.21.x
         uses: actions/setup-go@v5
