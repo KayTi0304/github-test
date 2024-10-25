@@ -18,6 +18,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Identify Changed Lambda
+        id: changed-lambda
+        run: |
+          # Get the name of the changed directory
+          changed_dir=$(git diff --name-only HEAD^ | grep -oP 'lambda-\d+' | sort -u)
+          echo "changed_lambda=${changed_dir}" >> $GITHUB_ENV
+          echo "${changed_dir}"
+     
+      - name: Stop Workflow if No Changes
+        if: env.changed_lambda == ''
+        run: echo "No changes detected in any Lambda functions. Stopping the workflow." && exit 0
+
+      - name: Setup Go 1.21.x
+        uses: actions/setup-go@v5
+        with:
+          # Semantic version range syntax or exact version of Go
+          go-version: '1.21.x'
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -27,14 +45,10 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubAssumeLambdaDevRole
           role-duration-seconds: 2400
 
-      - name: Setup Go 1.21.x
-        uses: actions/setup-go@v5
-        with:
-          # Semantic version range syntax or exact version of Go
-          go-version: '1.21.x'
-
       - name: Build
-        run: go build -o bootstrap ./main.go 
+        run: |
+          # Navigate to the changed Lambda directory
+          go build -o bootstrap ./${{ env.changed_lambda }}/main.go 
 
       - name: Zip the name file
         run: zip main.zip bootstrap
@@ -42,5 +56,5 @@ jobs:
       - name: Deploy to Lambda
         run: |
           aws lambda update-function-code \
-            --function-name func2-dev \
+            --function-name ${{ env.changed_lambda }} \
             --zip-file fileb://main.zip
