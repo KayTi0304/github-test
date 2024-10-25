@@ -37,7 +37,7 @@ jobs:
         run: go build -o bootstrap ./main.go 
 
       - name: Zip the name file
-        run: zip main.zip bootsrap
+        run: zip main.zip bootstrap
 
       - name: Deploy to Lambda
         run: |
