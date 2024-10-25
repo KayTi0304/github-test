@@ -54,6 +54,7 @@ jobs:
 
       - name: Deploy to Lambda
         run: |
+          echo '${ZIP_FILE_NAME}.zip'
           aws lambda update-function-code \
             --function-name ${{ github.event.inputs.lambda_function }} \
              --s3-bucket ${{ secrets.S3_BUCKET }} --s3-key ${ZIP_FILE_NAME}.zip
