@@ -8,7 +8,7 @@ import (
 )
 
 // Define a custom request structure if you need to handle JSON input
-type MyRequest struct {
+type MyRequest1 struct {
 	Name string `json:"name"`
 	Age  int    `json:"age"`
 }
@@ -19,7 +19,7 @@ type MyResponse struct {
 }
 
 // Lambda function handler
-func handler(ctx context.Context, request MyRequest) (MyResponse, error) {
+func handler(ctx context.Context, request MyRequest1) (MyResponse, error) {
 	// Business logic or processing based on request data
 	message := fmt.Sprintf("Hello %s, you are %d years old!", request.Name, request.Age)
 
