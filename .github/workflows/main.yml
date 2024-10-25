@@ -52,4 +52,4 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name func2-dev \
-            --zip-file main.zip
+            --zip-file fileb://main.zip
