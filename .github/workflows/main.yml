@@ -4,6 +4,11 @@ name: Update Lambda on AWS - DEV
 # Controls when the action will run. Invokes the workflow on push events but only for the main branch
 on: 
   workflow_dispatch:
+    inputs:
+        lambda_function:
+          description: 'Name of the Lambda function to deploy (e.g., lambda-1 or lambda-2)'
+          required: true
+          default: ''
 
 # Permission can be added at job level or workflow level    
 permissions:
@@ -17,18 +22,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Identify Changed Lambda
-        id: changed-lambda
-        run: |
-          # Get the name of the changed directory
-          changed_dir=$(git diff --name-only HEAD^ | grep -oP 'lambda-\d+' | sort -u)
-          echo "changed_lambda=${changed_dir}" >> $GITHUB_ENV
-          echo "${changed_dir}"
-     
-      - name: Stop Workflow if No Changes
-        if: env.changed_lambda == ''
-        run: echo "No changes detected in any Lambda functions. Stopping the workflow." && exit 0
 
       - name: Setup Go 1.21.x
         uses: actions/setup-go@v5
@@ -48,7 +41,7 @@ jobs:
       - name: Build
         run: |
           # Navigate to the changed Lambda directory
-          go build -o bootstrap ./${{ env.changed_lambda }}/main.go 
+          go build -o bootstrap ./${{ github.event.inputs.lambda_function }}/main.go 
 
       - name: Zip the name file
         run: zip main.zip bootstrap
@@ -56,5 +49,5 @@ jobs:
       - name: Deploy to Lambda
         run: |
           aws lambda update-function-code \
-            --function-name ${{ env.changed_lambda }} \
+            --function-name ${{ github.event.inputs.lambda_function }} \
             --zip-file fileb://main.zip
