@@ -34,10 +34,10 @@ jobs:
           go-version: '1.21.x'
 
       - name: Build
-        run: go build -o main ./main.go 
+        run: go build -o bootstrap ./main.go 
 
       - name: Zip the name file
-        run: zip main.zip main
+        run: zip main.zip bootsrap
 
       - name: Deploy to Lambda
         run: |
